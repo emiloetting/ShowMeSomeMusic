@@ -1,6 +1,6 @@
+import os
 import warnings
 import json
-import sqlite3
 import requests
 import bs4 as bs 
 from dotenv import load_dotenv
@@ -25,11 +25,8 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
 }   
 
-# Setup big DF to rule them all
-full_df = pd.DataFrame({'position':[], 
-                       'Title':[], 
-                       'Artist(s)':[], 
-                       'year':[]})
+# Setup big Dict to rule them all
+songs = {}
 
 
 # Iterate over all colletced links and scrape table within each
@@ -50,25 +47,27 @@ for year, link in year_links.items():
     df = pd.read_html(str(table))[0]    # returns list of DFs, we want first
     df.rename(columns={'№': 'position', 'No.': 'position'}, inplace=True)
     df['year'] = [year]*len(df)
+    df.reset_index(drop=True, inplace=True)
+    df.astype({'year': 'Int32', 'position': 'Int16'})
 
+    current_year = {}
     # Add current year to data
-    full_df = pd.concat([full_df, df], ignore_index=True)
+    for row in df.itertuples():
 
-    time.sleep(random.uniform(0.5, 1))  # make wikipedia think we're human
+        # Account for possible errors while reading out
+        try:
+            # Fill 
+            current_year[row.position] = {"title": row.Title, "artists": row._3}
 
-    
-# ensure the accumulator has the intended nullable integer dtypes as well
-full_df = full_df.astype({'year': 'Int32', 'position': 'Int16'})
-full_df.reset_index(drop=True, inplace=True)
-print()
-print(full_df.info())
-print()
-print(full_df.describe())
-print()
-print(full_df.head())
-print()
-print(full_df.tail())
+        except Exception as e:
+            print(e)
+            print(f"Skipped song: {row.Title}\n")
+
+    songs[year] = current_year
+    time.sleep(random.uniform(0.2, 0.5))  # make wikipedia think we're human
 
 
 # dump as json
-full_df.to_json("data/full_charts.json")
+os.makedirs("data", exist_ok=True)
+with open("data/top_100_songs.json", "w") as f:
+    json.dump(songs, f)
