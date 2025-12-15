@@ -1,5 +1,5 @@
-from src.data_collection.spotify_recco_fetcher import SpotifyScraper, ReccoScraper
-from src.data_collection.log_setup import setup_logger
+from spotify_recco_fetcher import SpotifyScraper, ReccoScraper
+from log_setup import setup_logger
 
 
 
