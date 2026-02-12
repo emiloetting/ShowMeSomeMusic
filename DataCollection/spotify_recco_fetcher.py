@@ -56,6 +56,7 @@ class SpotifyScraper:
         Returns:
             top_result (dict|None): Top result dictionary-entry of dict returned by API. None if no match was found at all.
         """
+        self.token_expiration_check()
         artist_list = self._list_artists(artist_s)
         self.logger.info(f"Searching track '{song_name}' by {artist_list}")
         url = "https://api.spotify.com/v1/search"
@@ -74,18 +75,27 @@ class SpotifyScraper:
                         params=params)
         
         if result.status_code != 200:
-            self.logger.error(f"Error accessing Spotify-API, status code: {result.status_code}: {json.loads(result.content)["error"]["message"]})")
-            return None
+            self.logger.error(
+                f"Error accessing Spotify-API, status code: {result.status_code}, "
+                f"Content-Type={result.headers.get('Content-Type')}, "
+                f"Body='{result.text[:200]}'"
+            )
     
-        # Account for rate limiting
-        while result.status_code == 429:
+            # Account for rate limiting
             sleeping_for = 1
-            time.sleep(sleeping_for)
-            sleeping_for = np.clip(sleeping_for, 1, 30)   # Clip to max 30s since that's window of rate calculation for Spotify
-            result = get(url=url, 
-                        headers=self.auth_header,
-                        params=params)
+            while result.status_code == 429:
+                time.sleep(sleeping_for)
+                sleeping_for = np.clip(sleeping_for, 1, 30)   # Clip to max 30s since that's window of rate calculation for Spotify
+                sleeping_for *= 2
+                result = get(url=url, 
+                            headers=self.auth_header,
+                            params=params)
+                self.logger.info(f"Status: {result.status_code}")
 
+        # Early return if nothing helped
+        if result.status_code != 200:
+            return None
+        
         result = json.loads(result.content)
         if len(result["tracks"]["items"]) == 0:
             self.logger.warning("No search results given!")
@@ -114,15 +124,19 @@ class SpotifyScraper:
         self.logger.info(f"Best artist jaro-sim: {matches[res]}")
 
         # Consider best match-score might still be absolute trash:
-        if matches[res] < 0.4:
-            # Check if Spotify-Artist is several names, e.g.
-            self.logger.info("Comparing first spotify-artist to whole entry in artist-row.")
-            full_jaro = jaro_similarity(track_result["artists"]["name"], artist_s)
-            if full_jaro < 0.4:
-                return None
+        # if matches[res] < 0.4:
+        #     # Check if Spotify-Artist is several names, e.g.
+        #     self.logger.info("Comparing first spotify-artist to whole entry in artist-row.")
+        #     # Combine artist names for comparison
+        #     full_artist_name = ", ".join([x["name"] for x in track_result["artists"]])
+        #     full_jaro = jaro_similarity(full_artist_name, artist_s)
+        #     if full_jaro < 0.4:
+        #         return None
         
         self.logger.info(f"Chose track '{result["tracks"]["items"][res]["name"]}' (ID: {result["tracks"]["items"][res]["id"]})")
 
+        artists = ", ".join([artist["name"] for artist in result["tracks"]["items"][res]["artists"]])
+        self.logger.info(f"By: {artists}")
         return dict(result["tracks"]["items"][res])     # return respective item 
     
 
@@ -183,26 +197,33 @@ class ReccoScraper():
         Returns:
             result (dict|None): Results of analysis as dictionary, None if no analysis available.
         """
-        url = self._make_url(id)
-        res = get(
-            url=url,
-            headers=self.headers
-        )
+        if id is None:
+            return None
 
-        # Handle rate limiting
+        url = self._make_url(id)
+        res = get(url=url, headers=self.headers)
+
+        # Rate limiting
         sleeping_for = 1
         while res.status_code == 429:
             time.sleep(sleeping_for)
-            sleeping_for *= 2
-            res = get(
-                url=url,
-                headers=self.headers
-            )
-            
-        res_json = res.json()["content"]    # make dict
+            sleeping_for = min(sleeping_for * 2, 30)
+            res = get(url=url, headers=self.headers)
 
-        if res_json == []:   # if no match found
+        if res.status_code != 200:
+            self.logger.warning(
+                f"Recco API error {res.status_code}: {res.text[:200]}"
+            )
             return None
-        
-        # Usual case if smth was found
-        return res.json()["content"][0]     # return dict with valueable info
+
+        try:
+            data = res.json()
+        except ValueError:
+            self.logger.warning("Recco API returned non-JSON response")
+            return None
+
+        content = data.get("content", [])
+        if not content:
+            return None
+
+        return content[0]

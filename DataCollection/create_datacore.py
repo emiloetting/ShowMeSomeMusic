@@ -27,7 +27,7 @@ mode_mapping = {
 
 logger = setup_logger()
 cwd = os.getcwd()
-pth = os.path.join(cwd, "data", "DataCore.db")
+pth = os.path.join(cwd, "DataStorage", "DataCore.db")
 with open(pth, "w"):
     pass
 

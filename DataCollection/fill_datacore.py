@@ -7,7 +7,7 @@ from log_setup import setup_logger
 
 
 cwd = os.getcwd()
-dcore_pth = os.path.join(cwd, "data", "DataCore.db")
+dcore_pth = os.path.join(cwd, "DataStorage", "DataCore.db")
 
 
 # Mappings according zto: https://reccobeats.com/docs/apis/get-audio-features
@@ -46,7 +46,7 @@ def main():
                             mode_mapping=mode_mapping)
 
     # Load JSON with chart info
-    with open("data/top_100_songs.json", "r") as f:
+    with open("DataStorage/top_100_songs.json", "r") as f:
         charts = dict(json.load(f))
 
 
@@ -58,6 +58,10 @@ def main():
             spotify_res = spotify_scraper.search(song_name=charts[year][pos]["title"],
                                                 artist_s=charts[year][pos]["artists"])
             
+            if spotify_res is None:
+                logger.warning("COULD NOT FIND SONG ON SPOTIFY")
+                logger.warning(f"SKIPPING: {year}-{pos}")
+                continue
             recco_res = recco_scraper.get_features(id=spotify_res["id"])
 
             datacore.insert_song(spotify_res=spotify_res, 
