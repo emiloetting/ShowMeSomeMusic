@@ -5,7 +5,7 @@ import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
 // Print success to console if success
 async function initilization() {
     console.log("main.js geladen");
-    let avg_dB_year = await fetch("/api/dB_by_year").then(response => response.json())
+    let avg_dB_year = await fetch("/api/avg_db_by_year").then(response => response.json())
     console.log(avg_dB_year);
     console.log("D3 geladen:", typeof d3.select); // Check load status of d3
 
@@ -24,14 +24,14 @@ console.log("Element pattern and types:", avg_db_data[0]);
 // Set margins to make content of SVG not stick to svg border
 const margin = {
     top: 20,
-    right: 120,
+    right: 160,
     bottom: 30,
     left: 40
 };
 
 // Define relative WaveformPlot dims based on screen
 const WaveformWIDTH = window.innerWidth * 0.7;
-const WaveformHEIGHT = window.innerHeight * 0.5;
+const WaveformHEIGHT = window.innerHeight * 0.45;
 
 // Set inner object sizes with respect to above defined margins for content
 const wave_innerWidth = WaveformWIDTH - margin.left - margin.right;
@@ -67,6 +67,123 @@ WaveformContent
     .attr("y2", wave_baseline);
 
 
+// Function to render swarm plot of mean db
+async function renderLoudnessSwarm(year) {
+    const res = await fetch(`/api/songs_db/${year}`);
+    const data = await res.json();
+    data.forEach(d => {
+        d.position = +d.position;   // ensure chart position is correctly casted
+        d.mean_db = +d.mean_db;
+    });
+
+    const root = d3.select("#Loudness_Swarm"); // clear existing instance to avoid rendering error
+    root.selectAll("*").remove();
+
+    // Setup svg
+    const LoudnessSwarm_Width = WaveformWIDTH;
+    const LoudnessSwarm_Height = WaveformHEIGHT*0.22
+    const margin = { top: 20, right: 160, bottom: 30, left: 40 };
+    const svg = root.append("svg")
+        .attr("width", LoudnessSwarm_Width)
+        .attr("height", LoudnessSwarm_Height);
+    
+    const g = svg.append("g")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+    const innerWidth = wave_innerWidth;
+
+    const innerHeight =
+    LoudnessSwarm_Height - margin.top - margin.bottom;
+
+    const x_axis = d3.scaleLinear()
+        .domain(d3.extent(data, d => d.mean_db))
+        .nice()  
+        .range([0, innerWidth]);
+
+    // color scheme
+    const maxPos = d3.max(data, d => d.position) ?? 100;
+    const midPos = (maxPos + 1) / 2;
+    const color = d3.scaleLinear()
+        .domain([1, midPos, maxPos])                 // gut → mittel → schlecht
+        .range(["#1a9850", "#fdae61", "#d73027"]);
+
+    g.append("g")
+        .attr("transform", `translate(0, ${innerHeight})`)   
+        .call(d3.axisBottom(x_axis));
+
+    const swarmYOffset = 10; 
+    const centerY = innerHeight / 2 + swarmYOffset; // start with points on singular line (works fine if not 2 Song share same mean db val)
+
+    g.append("g")     // Append to svg
+        .selectAll("circle")
+        .data(data)
+        .join("circle")
+        .attr("r", 4)   // radius of 4px
+        .attr("cx", d => x_axis(d.mean_db))     // x position based on loudness
+        .attr("cy", centerY)
+        .attr("fill", d => color(d.position))   // color based on chart position
+        .append("title")    
+            .text(d => `Name: "${d.name}" | Position: ${d.position} | Ø Loudness: ${d.mean_db.toFixed(2)} dB`);
+
+    const defs = svg.append("defs");
+
+    // Build gradient legend 
+    const gradient = defs.append("linearGradient")
+        .attr("id", "legend-gradient");
+
+            // sampling colors
+    const N = 30;
+    for (let i = 0; i <= N; i++) {
+    const t = i / N;
+    const pos = 1 + t * (maxPos - 1); // 1..maxPos
+
+    gradient.append("stop")
+        .attr("offset", `${t * 100}%`)
+        .attr("stop-color", color(pos));
+    }
+    
+    const legendWidth = 100;
+    const legendHeight = 10;
+
+    // underneath Min, Max & Percentiles
+    const legendX = wave_innerWidth + 5;  
+    const legendY = centerY;              // center to swarm-center
+
+    const legend = g.append("g")
+        .attr("transform", `translate(${legendX}, ${legendY})`);
+
+    legend.append("rect")
+        .attr("x", 0)
+        .attr("y", -legendHeight / 2)
+        .attr("width", legendWidth)
+        .attr("height", legendHeight)
+        .style("fill", "url(#legend-gradient)");
+
+    legend.append("text")
+        .attr("x", 0)
+        .attr("y", -legendHeight / 2 - 6)
+        .attr("fill", "white")
+        .attr("font-size", 12)
+        .text("Chart Position");
+
+    legend.append("text")
+        .attr("x", 0)
+        .attr("y", legendHeight / 2 + 16)
+        .attr("fill", "#1a9850")
+        .attr("text-anchor", "start")
+        .attr("font-size", 12)
+        .text("1");
+
+    legend.append("text")
+        .attr("x", legendWidth)
+        .attr("y", legendHeight / 2 + 16)
+        .attr("fill", "#d73027")
+        .attr("text-anchor", "end")
+        .attr("font-size", 12)
+        .text(maxPos);
+}
+
+
 // Function to allow for dynmiac data display
 function renderWave(data) {
     // Make each year get position on x-Axis
@@ -79,7 +196,7 @@ function renderWave(data) {
     const domain = [Math.min(...db_vals), Math.max(...db_vals)]     // Math.min() expects values, ...unpacks
     const amplitude = d3.scaleLinear()      // make db-line sizes linearly scaled
         .domain(domain)
-        .range([10, wave_innerHeight * 0.45]);  // Min of 10, max 45% of available height 
+        .range([10, wave_innerHeight * 0.9]);  // Min of 10, max 45% of available height 
 
     // Create min, max, 25 & 75 percentile lines (dotted)
     const minDb = d3.min(db_vals);      // Grab min & max
@@ -138,30 +255,35 @@ function renderWave(data) {
         .attr("y2", dp => wave_baseline - (amplitude(dp.mean_db) / 2))    // start height calc from baseline, subtract return values of amplitude function from above since it draws into height
 
         // Tooltip geschichten: Fenster auf wenn drübergehovert
-        // Sichtbar machen & Daten anzeigen
         .on("mouseover", (event, dp) => {
             WaveFormTooltip
             .style("opacity", 1)
             .html(`<strong>Year:</strong> ${dp.year}<br><strong>Ø Loudness:</strong> ${Db_nks(dp.mean_db)} dB`);
         })
-        // Tooltip mit Maus bewegen
+
         .on("mousemove", (event) => {
             WaveFormTooltip
             .style("left", `${event.pageX}px`)
             .style("top", `${event.pageY}px`);
         })
 
-        // Schließen wenn Maus wech von Balken
         .on("mouseout", () => {
             WaveFormTooltip.style("opacity", 0);
         })
 
         .on("click", async (event, dp) => {
             event.stopPropagation();
-            await renderBpmStrip(dp.year);
-            d3.select("#BpmStrip").classed("hidden", false);
+            d3.select("#Loudness_Swarm").classed("hidden", false);  // make visible
+            await renderLoudnessSwarm(dp.year); ;
         });
 }
 
 const WaveFormTooltip = d3.select("#WaveFormTooltip");
 renderWave(avg_db_data)
+
+// Make loudness swarm invisible 
+window.addEventListener("click", (e) => {
+  const clickedBar = e.target && e.target.classList && e.target.classList.contains("db-line");
+  if (clickedBar) return;
+  d3.select("#Loudness_Swarm").classed("hidden", true);
+}, true);
