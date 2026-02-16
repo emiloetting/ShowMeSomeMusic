@@ -21,22 +21,34 @@ console.log("Is Array:", Array.isArray(avg_db_data));
 console.log("Length:", avg_db_data.length);
 console.log("Element pattern and types:", avg_db_data[0]);
 
-// Set margins to make content of SVG not stick to svg border
-const margin = {
-    top: 20,
-    right: 160,
-    bottom: 30,
-    left: 40
-};
 
-// Define relative WaveformPlot dims based on screen
-const WaveformWIDTH = window.innerWidth * 0.7;
-const WaveformHEIGHT = window.innerHeight * 0.45;
+// Layout stuff
+// ===== Layout Budget (80% viewport height) =====
+const VIZ_HEIGHT = window.innerHeight * 0.80;
 
-// Set inner object sizes with respect to above defined margins for content
-const wave_innerWidth = WaveformWIDTH - margin.left - margin.right;
-const wave_innerHeight = WaveformHEIGHT - margin.top - margin.bottom;
+// optional: Abstand zwischen Waveform und Swarm (CSS margin-top etc.)
+const VIZ_GAP = 12;
+
+// Aufteilung: Waveform bekommt mehr Platz als Swarm
+const WAVE_H = VIZ_HEIGHT * 0.65;
+const SWARM_H = VIZ_HEIGHT - WAVE_H - VIZ_GAP;
+
+// Breite bleibt wie gehabt
+const WaveformWIDTH = window.innerWidth * 0.75;
+const WaveformHEIGHT = WAVE_H;
+
+// Swarm nutzt gleiche Breite, eigene Höhe aus dem Budget
+const LoudnessSwarm_Width = WaveformWIDTH;
+const LoudnessSwarm_Height = SWARM_H;
+
+const wave_margin = { top: 20, right: 160, bottom: 0, left: 40 };
+const swarm_margin = { top: 0, right: 160, bottom: 40, left: 40 };
+
+const wave_innerWidth  = WaveformWIDTH  - wave_margin.left - wave_margin.right;
+const wave_innerHeight = WaveformHEIGHT - wave_margin.top  - wave_margin.bottom;
 const wave_baseline = wave_innerHeight / 2;
+
+
 
 
 // MENTAL MODEL:
@@ -55,7 +67,7 @@ const WaveFormSVG = d3
 // Create Group of all contents within svg (invisible container)
 const WaveformContent = WaveFormSVG
     .append("g")    // must be <g> due to SVG elements (only a small list with official names that must be used)
-    .attr("transform", `translate(${margin.left}, ${margin.top})`);     // Move coordinate system according to margins (always start top left)
+    .attr("transform", `translate(${wave_margin.left}, ${wave_margin.top})`);     // Move coordinate system according to margins (always start top left)
 
 // Add the plot baseline to container on svg-"canvas"
 WaveformContent
@@ -80,20 +92,16 @@ async function renderLoudnessSwarm(year) {
     root.selectAll("*").remove();
 
     // Setup svg
-    const LoudnessSwarm_Width = WaveformWIDTH;
-    const LoudnessSwarm_Height = WaveformHEIGHT*0.22
-    const margin = { top: 20, right: 160, bottom: 30, left: 40 };
     const svg = root.append("svg")
         .attr("width", LoudnessSwarm_Width)
         .attr("height", LoudnessSwarm_Height);
     
     const g = svg.append("g")
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+        .attr("transform", `translate(${swarm_margin.left}, ${swarm_margin.top})`);
 
     const innerWidth = wave_innerWidth;
 
-    const innerHeight =
-    LoudnessSwarm_Height - margin.top - margin.bottom;
+    const innerHeight = LoudnessSwarm_Height - swarm_margin.top - swarm_margin.bottom;
 
     const x_axis = d3.scaleLinear()
         .domain(d3.extent(data, d => d.mean_db))
@@ -111,19 +119,46 @@ async function renderLoudnessSwarm(year) {
         .attr("transform", `translate(0, ${innerHeight})`)   
         .call(d3.axisBottom(x_axis));
 
-    const swarmYOffset = 10; 
-    const centerY = innerHeight / 2 + swarmYOffset; // start with points on singular line (works fine if not 2 Song share same mean db val)
 
-    g.append("g")     // Append to svg
-        .selectAll("circle")
-        .data(data)
-        .join("circle")
-        .attr("r", 4)   // radius of 4px
-        .attr("cx", d => x_axis(d.mean_db))     // x position based on loudness
-        .attr("cy", centerY)
-        .attr("fill", d => color(d.position))   // color based on chart position
-        .append("title")    
-            .text(d => `Name: "${d.name}" | Position: ${d.position} | Ø Loudness: ${d.mean_db.toFixed(2)} dB`);
+
+    // Settings for swarm-part
+    const r = 6;                 // radius (must fit force collide)
+    const padding = 1;           // space inbetween points
+    const centerY = innerHeight * 0.35; // start with points on singular line (works fine if not 2 Song share same mean db val)
+    const yMin = centerY - 60;      // Maximum "width" of swarm
+    const yMax = centerY + 60;
+
+    // init pos
+    data.forEach(d => {
+    d.x = x_axis(d.mean_db);
+    d.y = centerY;
+    });
+
+    // Force sim.: fix x, centered y, no overlap
+    const sim = d3.forceSimulation(data)
+    .force("x", d3.forceX(d => x_axis(d.mean_db)).strength(1))
+    .force("y", d3.forceY(centerY).strength(0.05))
+    .force("collide", d3.forceCollide(r + padding))
+    .stop();
+
+    for (let i = 0; i < 220; i++) sim.tick();   // run sim to order points in best way possible
+
+    // clamp y to max height
+    data.forEach(d => {
+    d.y = Math.max(yMin, Math.min(yMax, d.y));
+    });
+
+    // render points
+    g.append("g")
+    .selectAll("circle")
+    .data(data)
+    .join("circle")
+        .attr("r", r)
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
+        .attr("fill", d => color(d.position))
+    .append("title")
+        .text(d => `Name: "${d.name}" | Position: ${d.position} | Ø Loudness: ${d.mean_db.toFixed(2)} dB`);
 
     const defs = svg.append("defs");
 
@@ -160,10 +195,9 @@ async function renderLoudnessSwarm(year) {
         .style("fill", "url(#legend-gradient)");
 
     legend.append("text")
+        .attr("class", "legend-title")
         .attr("x", 0)
         .attr("y", -legendHeight / 2 - 6)
-        .attr("fill", "white")
-        .attr("font-size", 12)
         .text("Chart Position");
 
     legend.append("text")
@@ -171,7 +205,7 @@ async function renderLoudnessSwarm(year) {
         .attr("y", legendHeight / 2 + 16)
         .attr("fill", "#1a9850")
         .attr("text-anchor", "start")
-        .attr("font-size", 12)
+        .attr("font-size", 15)
         .text("1");
 
     legend.append("text")
@@ -179,7 +213,7 @@ async function renderLoudnessSwarm(year) {
         .attr("y", legendHeight / 2 + 16)
         .attr("fill", "#d73027")
         .attr("text-anchor", "end")
-        .attr("font-size", 12)
+        .attr("font-size", 15)
         .text(maxPos);
 }
 
@@ -196,7 +230,7 @@ function renderWave(data) {
     const domain = [Math.min(...db_vals), Math.max(...db_vals)]     // Math.min() expects values, ...unpacks
     const amplitude = d3.scaleLinear()      // make db-line sizes linearly scaled
         .domain(domain)
-        .range([10, wave_innerHeight * 0.9]);  // Min of 10, max 45% of available height 
+        .range([10, wave_innerHeight * 0.75]);  // Min of 10, max 45% of available height 
 
     // Create min, max, 25 & 75 percentile lines (dotted)
     const minDb = d3.min(db_vals);      // Grab min & max
@@ -224,7 +258,7 @@ function renderWave(data) {
             .attr("y2", wave_baseline - fixed_val);
 
         WaveformContent.append("text")
-            .attr("class", "WaveFormRefLine-Label")
+            .attr("class", "wave-label")
             .attr("x", wave_innerWidth + 5) // slight shift
             .attr("y", wave_baseline - fixed_val)
             .attr("dominant-baseline", "middle")

@@ -4,20 +4,17 @@ body {
 
 #MainTitle {
     color: rgb(255, 255, 255);
-    text-align: center;
+    text-align: left;
     font-family: 'Blippo';
     font-family: 'fantasy';
-    font-size: 120px;
+    font-size: 40px;
 }
 
 /* # for IDs, . for classes */
 #WaveformVisual {
     display: flex;              /* to allow content alignment in next step */
     justify-content: center;    /* align-content: center funzt hier nicht*/
-    stroke: rgb(255, 255, 255);
-    stroke-width: 2px;
 }
-
 .waveform_baseline {
     stroke: rgb(255, 255, 255);
     stroke-width: 2px;
@@ -32,10 +29,10 @@ body {
     stroke:rgb(255, 124, 9);
 }
 
-/*Fenster was beim Hovern aufploppt */
+/*Shows on hover */
 .tooltip{
     position: absolute;
-    pointer-events: none;   /* Tooltip blockiert keine Hover-Events */
+    pointer-events: none;  
     background: rgba(35, 35, 35, 0.85);
     color: white;
     padding: 8px 10px;
@@ -43,7 +40,7 @@ body {
     font-size: 14px;
     border: 1px solid rgba(255,255,255,0.2);
     box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-    transform: translate(10px, -10px); /* knapp neben mausspitze */
+    transform: translate(10px, -10px); 
     z-index: 10;
 }
 
@@ -54,12 +51,56 @@ body {
     stroke-dasharray: 6 6;
 }
 
-.WaveFormRefLine-Label {
-  fill: rgba(255,255,255,0.55);   /* weniger Kontrast */
-  font-size: 17px;                /* wichtig */
-  font-weight: 400;               /* NICHT bold */
-  stroke: none;                   /* sicherheitshalber */
+/* Waveform: Max/Min/Percentiles */
+.wave-label{
+  fill: rgba(255,255,255,0.75);
+  font-size: 18px;
+  font-weight: 400;
+  stroke: none;
+  paint-order: normal;
   pointer-events: none;
+}
+
+/* Swarm: "Chart Position" */
+.legend-title{
+  fill: rgba(255,255,255,0.75);
+  font-size: 18px;
+  font-weight: 400;
+  stroke: none;
+  paint-order: normal;
+  pointer-events: none;
+}
+
+.legend-desc{
+  fill: rgba(255,255,255,0.75);
+}
+
+#Loudness_Swarm .tick text {
+  fill: rgba(255,255,255,0.75);
+  font-size: 12px;
+}
+
+#Loudness_Swarm .domain,
+#Loudness_Swarm .tick line {
+  stroke: rgba(255,255,255,0.35);
+}
+
+.axis-label{
+  fill: rgba(255,255,255,0.75);
+  font-size: 16px;
+  font-weight: 400;
+  pointer-events: none;
+}
+
+/* DB-Swarm X-Axis*/
+#Loudness_Swarm .x-axis .tick text{
+  fill: rgba(255,255,255,0.75);
+  font-size: 12px;
+}
+
+#Loudness_Swarm .x-axis .domain,
+#Loudness_Swarm .x-axis .tick line{
+  stroke: rgba(255,255,255,0.25);
 }
 
 #VizStack{

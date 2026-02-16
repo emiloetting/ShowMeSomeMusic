@@ -5,12 +5,11 @@ const Database = require('better-sqlite3');
 const Path = require('path');
 const Express = require('express');  
 
-
 //  Create app and set port
 const app = Express();  
 const PORT = 3000;
 app.use(Express.static("public"));  // Pass dir "public" to browser
-
+app.use(Express.static("public/src"));  // Pass dir "public" to browser
 // Set Path for DB
 const dbPath = Path.join(__dirname, '..', 'DataStorage', 'avg_loudness_demo.db') 
 console.log(dbPath);
@@ -31,6 +30,11 @@ function SongsDbByYear(db, year) {
   return db.prepare("SELECT trackname as name, position, avg_loudness as mean_db FROM avg_loudness WHERE year = ?").all(year);
 }
 
+
+// FUNCTION 3: Get Min and Max DB of all songs in DB
+function MinMaxDb(db) {
+  return db.prepare("SELECT MIN(avg_loudness) as min_db, MAX(avg_loudness) as max_db FROM avg_loudness").get()
+}
 
 // DEFINE API
 
@@ -56,7 +60,11 @@ app.get("/api/songs_db/:year", (req, res) => {
   res.json(SongsDbByYear(DB, year));
 });
 
-
+// loudest and quietest db nr.
+app.get("/api/minmax_db", (req, res) => {
+  res.json(MinMaxDb(DB))
+  console.log("[API] /api/minmax_db called!")
+})
 
 app.listen(PORT, () => {
     console.log(`Running on http:localhost:${PORT}`)
