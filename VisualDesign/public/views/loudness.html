@@ -1,0 +1,32 @@
+<head>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+  <main class="view">
+    <h1 id="ViewTitle">Show Me Some Music</h1>
+
+    <nav class="view-nav" aria-label="Visualisierungen">
+      <a href="/index.html">Start</a>
+      |
+      <a href="/views/loudness.html">Loudness</a>
+      | 
+      <a href="/views/loudness.html">Loudness</a>
+      |
+      <a href="/views/loudness.html">Loudness</a>
+      |
+      <a href="/views/loudness.html">Loudness</a>
+      |
+      <a href="/views/loudness.html">Loudness</a>
+    </nav>
+
+    <div id="VizStack">
+      <div id="WaveformVisual"></div>
+      <div id="Loudness_Swarm" class="hidden"></div>
+    </div>
+
+    <div id="WaveFormTooltip" class="tooltip" style="opacity:0;"></div>
+
+    <script type="module" src="/src/app.js"></script>
+  </main>
+</body>

@@ -1,4 +1,3 @@
-// js/loudnessSwarm.js
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
 import { fetchSongsDbByYear, fetchLoudestAndQuietest } from "./api.js";
 
@@ -36,8 +35,7 @@ export async function renderLoudnessSwarm(rootSelector, layout, year) {
     .attr("x", innerWidth / 2)
     .attr("text-anchor", "center");
 
-  const mm = await fetchLoudestAndQuietest();
-  const { min_db, max_db } = mm[0];
+  const { min_db, max_db } = await fetchLoudestAndQuietest();
 
   // Create x-axis
   const x_axis = d3.scaleLinear()

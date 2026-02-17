@@ -1,0 +1,84 @@
+/* Titles */
+.hero-title,
+#MainTitle{
+  margin: 0 0 18px 0;
+  font-family: fantasy;
+  font-size: clamp(42px, 7vw, 84px);
+  letter-spacing: 0.5px;
+  line-height: 1.05;
+}
+
+.view-title,
+#ViewTitle{
+  font-family: fantasy;
+  font-size: clamp(22px, 2.6vw, 32px);
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.8);
+  margin: 0 0 10px 0;
+}
+
+.hero-about{
+  margin: 0 auto 26px auto;
+  max-width: 65ch;
+  font-size: clamp(15px, 1.8vw, 18px);
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.hero-nav{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.view-nav{
+  display: flex;
+  justify-content: flex-start;  
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hero-nav a,
+.view-nav a{
+  color: rgba(255,255,255,0.92);
+  text-decoration: none;
+  padding: 6px 8px;
+  border-radius: var(--radius-md);
+  transition: transform 180ms ease, color 180ms ease, background 180ms ease;
+}
+
+.hero-nav a:hover,
+.view-nav a:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.06);
+  color: var(--accent);
+}
+
+.hero-nav a:visited,
+.view-nav a:visited{
+  color: rgba(255,255,255,0.92);
+}
+
+.sep{
+  opacity: 0.35;
+  user-select: none;
+}
+
+/* Tooltip */
+.tooltip{
+  position: absolute;
+  pointer-events: none;
+  background: rgba(35,35,35,0.85);
+  color: white;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  transform: translate(10px, -10px);
+  z-index: 10;
+}

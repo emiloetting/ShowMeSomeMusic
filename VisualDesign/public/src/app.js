@@ -1,4 +1,3 @@
-// js/app.js
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
 import { getLayout } from "./layout.js";
 import { fetchAvgDbByYear } from "./api.js";
@@ -21,6 +20,7 @@ renderWave({
     await renderLoudnessSwarm("#Loudness_Swarm", layout, year);
   }
 });
+
 
 window.addEventListener("click", (e) => {
   const clickedBar = e.target?.classList?.contains("db-line");

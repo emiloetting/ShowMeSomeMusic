@@ -1,0 +1,52 @@
+/* Landing Page */
+.landing{
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 48px 20px;
+}
+
+.hero{
+  width: min(900px, 100%);
+  text-align: center;
+  animation: fadeUp 700ms ease both;
+}
+
+@keyframes fadeUp{
+  from{ opacity: 0; transform: translateY(10px); }
+  to{ opacity: 1; transform: translateY(0); }
+}
+
+
+
+/* View Page*/
+.view{
+  padding: 22px 20px 40px;
+}
+
+
+
+/* Viz Stack */
+#VizStack{
+  display: flex;
+  flex-direction: column;
+}
+
+#WaveformVisual,
+#Loudness_Swarm{
+  width: 100%;
+}
+
+#WaveformVisual{
+  display: flex;
+  justify-content: center;
+}
+
+#Loudness_Swarm{
+  display: flex;
+  justify-content: center;
+}
+
+#Loudness_Swarm.hidden{
+  display: none !important;
+}

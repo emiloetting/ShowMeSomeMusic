@@ -1,0 +1,28 @@
+.waveform_baseline{
+  stroke: rgb(255,255,255);
+  stroke-width: 2px;
+  opacity: 0.9;
+}
+
+.db-line{
+  stroke: rgb(255,255,255);
+}
+
+.db-line:hover{
+  stroke: var(--accent);
+}
+
+.WaveFormRefLine{
+  stroke: rgb(255,255,255);
+  opacity: 0.25;
+  stroke-width: 1px;
+  stroke-dasharray: 6 6;
+}
+
+/* Max/Min/Percentiles labels */
+.wave-label{
+  fill: rgba(255,255,255,0.75);
+  font-size: 18px;
+  font-weight: 400;
+  pointer-events: none;
+}
