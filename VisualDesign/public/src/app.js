@@ -4,6 +4,7 @@ import { fetchAvgDbByYear } from "./api.js";
 import { createWaveform, renderWave } from "./waveform.js";
 import { renderLoudnessSwarm } from "./loudnessSwarm.js";
 
+
 const layout = getLayout();
 const avg = await fetchAvgDbByYear();
 

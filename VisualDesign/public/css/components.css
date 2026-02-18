@@ -51,6 +51,11 @@
   transition: transform 180ms ease, color 180ms ease, background 180ms ease;
 }
 
+.hero-nav a:visited,
+.view-nav a:visited{
+  color: rgba(255,255,255,0.92);
+}
+
 .hero-nav a:hover,
 .view-nav a:hover{
   transform: translateY(-1px);
@@ -58,10 +63,6 @@
   color: var(--accent);
 }
 
-.hero-nav a:visited,
-.view-nav a:visited{
-  color: rgba(255,255,255,0.92);
-}
 
 .sep{
   opacity: 0.35;

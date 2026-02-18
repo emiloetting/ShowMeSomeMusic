@@ -1,5 +1,13 @@
 <head>
   <link rel="stylesheet" href="../css/styles.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+</script>
 </head>
 
 <body>
@@ -21,12 +29,14 @@
     </nav>
 
     <div id="VizStack">
-      <div id="WaveformVisual"></div>
-      <div id="Loudness_Swarm" class="hidden"></div>
+      <div id="discoRoot"></div>
     </div>
 
-    <div id="WaveFormTooltip" class="tooltip" style="opacity:0;"></div>
+    <div class="tooltip" style="opacity:0;"></div>
 
-    <script type="module" src="/src/app.js"></script>
+    <script type="module">
+      import { discoBall } from "../src/disco.js";
+      discoBall().catch(console.error);
+    </script>
   </main>
 </body>

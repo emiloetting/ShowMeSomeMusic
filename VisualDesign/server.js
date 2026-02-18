@@ -36,6 +36,12 @@ function MinMaxDb(db) {
   return db.prepare("SELECT MIN(avg_loudness) as min_db, MAX(avg_loudness) as max_db FROM avg_loudness").get()
 }
 
+// FUNCTION 4: Get all danceability
+function FullDanceability(db) {
+  return db.prepare("SELECT year, position, danceability FROM avg_loudness").all()
+}
+
+
 // DEFINE API
 
 // avg loudness of a year
@@ -64,6 +70,12 @@ app.get("/api/songs_db/:year", (req, res) => {
 app.get("/api/minmax_db", (req, res) => {
   res.json(MinMaxDb(DB))
   console.log("[API] /api/minmax_db called!")
+})
+
+// Danceability
+app.get("/api/full_danceability", (req, res) => {
+  res.json(FullDanceability(DB))
+  console.log("[API] /api/full_danceability called!")
 })
 
 app.listen(PORT, () => {

@@ -50,3 +50,8 @@
 #Loudness_Swarm.hidden{
   display: none !important;
 }
+
+#discoRoot{
+  display: flex;
+  justify-content: center;
+}
