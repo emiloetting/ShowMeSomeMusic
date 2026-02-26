@@ -37,8 +37,26 @@ function MinMaxDb(db) {
 }
 
 // FUNCTION 4: Get all danceability
-function FullDanceability(db) {
-  return db.prepare("SELECT year, position, danceability FROM avg_loudness").all()
+function fullDanceability(db) {
+  return db.prepare("SELECT trackname, artist, year, position, danceability FROM avg_loudness").all()
+}
+
+// FUNCITON 5: Data for tracking pos
+function ContinuityRows(db) {
+  return db.prepare(`
+    SELECT
+      track_id,
+      trackname,
+      artist,
+      year,
+      position
+    FROM avg_loudness
+    WHERE year BETWEEN 1959 AND 2024
+      AND position BETWEEN 1 AND 100
+      AND track_id IS NOT NULL
+      AND TRIM(track_id) <> ''
+    ORDER BY year ASC, position ASC;
+  `).all();
 }
 
 
@@ -74,10 +92,43 @@ app.get("/api/minmax_db", (req, res) => {
 
 // Danceability
 app.get("/api/full_danceability", (req, res) => {
-  res.json(FullDanceability(DB))
+  res.json(fullDanceability(DB))
   console.log("[API] /api/full_danceability called!")
 })
+
+// Energy
+app.get("/api/energy_top20", (req, res) => {
+  try {
+    const rows = DB.prepare(`
+      SELECT
+        year,
+        AVG(CASE WHEN position BETWEEN 1 AND 10 THEN energy END)  AS top10,
+        AVG(CASE WHEN position BETWEEN 11 AND 20 THEN energy END) AS next10
+      FROM avg_loudness
+      WHERE year BETWEEN 1959 AND 2024
+      GROUP BY year
+      ORDER BY year;
+    `).all();
+
+    res.json(rows);
+  } catch (err) {
+    console.error("[API] /api/energy_top20 failed:", err);
+    res.status(500).json({ error: String(err) });
+  }
+});
+
 
 app.listen(PORT, () => {
     console.log(`Running on http:localhost:${PORT}`)
 })
+
+
+app.get("/api/continuity_rows", (req, res) => {
+  try {
+    res.json(ContinuityRows(DB));
+    console.log("[API] /api/continuity_rows called!");
+  } catch (err) {
+    console.error("[API] /api/continuity_rows failed:", err);
+    res.status(500).json({ error: String(err) });
+  }
+});
