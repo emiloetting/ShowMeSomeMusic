@@ -21,7 +21,7 @@
       | 
       <a href="/views/disco.html">Danceability</a>
       |
-      <a href="/views/loudness.html">Loudness</a>
+      <a href="/views/bulb.html">Energy</a>
       |
       <a href="/views/loudness.html">Loudness</a>
       |
@@ -30,6 +30,30 @@
 
     <div id="VizStack">
       <div id="discoRoot"></div>
+    </div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div>
+      <h1 id = "View-metric">Danceability</h1>
+      <p class="view-about">
+        Depicted above is the danceability of chart entries from each year. 
+        Longitude represents a specific year, while altitude encodes chart position.
+        Therefore, each tile provides information on a specific song within the Billboad Hot 100 Year-End Charts between 1959 and 2024. 
+        <br>
+        Each tile contains information about a specific song.
+        Danceability is measured in values ranging from 0 to 1 and indicated by the brightness of the respective tile.
+        In some cases, data might be missing. The respective fields are then colored green.
+        <br>
+        <br>
+        <span class="view-about-highlight-word">Bias Information</span>: 
+        <br>
+        Since not all tiles are of similar size, keep in mind that tilesize does not contain or encode any extra information. 
+        Hence, if a specific area seems bright but of small of size, remember that many songs might be encoded within that area of the ball.
+        This effect occurs toward the top and bottom (relative to the starting point of the visualization)!
+      </p>
     </div>
 
     <div class="tooltip" style="opacity:0;"></div>
