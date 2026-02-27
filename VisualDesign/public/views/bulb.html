@@ -1,4 +1,5 @@
 <head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css">
   <link rel="stylesheet" href="../css/styles.css">
   <script type="importmap">
     {
@@ -46,6 +47,7 @@
 
 
     <div id="energyViz" class="viz energy-viz"></div>
+    <script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js"></script>
     <script type="module">
     import { initEnergyBulbs } from "../src/bulb.js";
     initEnergyBulbs(document.querySelector("#energyViz"));
