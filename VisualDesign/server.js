@@ -11,7 +11,7 @@ const PORT = 3000;
 app.use(Express.static("public"));  // Pass dir "public" to browser
 app.use(Express.static("public/src"));  // Pass dir "public" to browser
 // Set Path for DB
-const dbPath = Path.join(__dirname, '..', 'DataStorage', 'avg_loudness_demo.db') 
+const dbPath = Path.join(__dirname, '..', 'DataStorage', 'DataCore.db') 
 console.log(dbPath);
 
 // Instantiate DB-connection
