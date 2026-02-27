@@ -4,22 +4,20 @@
   position: relative;
 }
 
-/* SVG Basis */
 .continuity-svg {
   width: 100%;
   height: 100%;
   display: block;
 }
 
-/* links */
 .continuity-link {
-  stroke: rgba(255, 255, 255, 0.18);
+  stroke: rgba(255, 255, 255, 1);
   stroke-width: 1;
   transition: opacity 0.2s ease;
 }
 
 .is-hovering .continuity-link {
-  opacity: 0.25;
+  opacity: 1;
 }
 
 /* nodes*/
@@ -42,7 +40,7 @@
 /* axis texts*/
 .axis-hints text {
   fill: rgba(255, 255, 255, 0.90);
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 400;
 }
 
@@ -60,15 +58,14 @@
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
   z-index: 9999;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.1s ease;
 }
 
-/* make little bigger on hover */
-.continuity-node:hover {
-  transform: scale(1.4);
-  transform-origin: center;
-}
 
+.continuity-node:hover{
+  stroke: var(--accent);
+  stroke-width: 1;
+}
 
 /* contiuity stuff */
 #continuity-Viz .conti-controls{
@@ -140,4 +137,68 @@
 #continuity-Viz .noUi-marker,
 #continuity-Viz .noUi-value{
   display:none;
+}
+
+/* on click details */
+.conti-details{
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+
+  max-width: 720px;
+  margin: 16px auto 0;
+  font-family: inherit;
+}
+
+.conti-details__title{
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  letter-spacing: 0.3px;
+}
+
+.conti-details__track{
+  color: white;
+  font-weight: 500;
+}
+
+.conti-details__artist{
+  color: rgba(255,255,255, 1);
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+.conti-details__grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px 16px;
+}
+
+.conti-details__grid .stat{
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.conti-details__grid .stat-label{
+  white-space: normal;
+  overflow-wrap: anywhere;
+  color: rgba(255,255,255,1);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+}
+
+.conti-details__grid .stat-leader{
+  border-bottom: 1px dashed rgba(255,255,255,0.18);
+  transform: translateY(1px);
+}
+
+.conti-details__grid b{
+  white-space: nowrap;
+  color: white;
+  font-weight: 600;
+  font-size: 13px;
 }
