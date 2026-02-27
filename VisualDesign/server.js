@@ -117,18 +117,17 @@ app.get("/api/energy_top20", (req, res) => {
   }
 });
 
+app.get("/api/track_continuity", (req, res) => {
+  try {
+    res.json(ContinuityRows(DB));
+    console.log("[API] /api/track_continuity called!");
+  } catch (err) {
+    console.error("[API] /api/track_continuity failed:", err);
+    res.status(500).json({ error: String(err) });
+  }
+});
 
 app.listen(PORT, () => {
     console.log(`Running on http:localhost:${PORT}`)
 })
 
-
-app.get("/api/continuity_rows", (req, res) => {
-  try {
-    res.json(ContinuityRows(DB));
-    console.log("[API] /api/continuity_rows called!");
-  } catch (err) {
-    console.error("[API] /api/continuity_rows failed:", err);
-    res.status(500).json({ error: String(err) });
-  }
-});
