@@ -3,10 +3,10 @@ import { prepareAvgEnergy } from "./api.js";
 
 
 // function to ensure intuitive read-out of speed fader
-function getSpeedIntervalMs(speed) {
-  const min = Number(speed.min);
-  const max = Number(speed.max);
-  const v = Number(speed.value);
+function getSpeedIntervalMs(speedSliderEl) {
+  const v = Number(speedSliderEl.noUiSlider.get());
+  const min = 50;
+  const max = 1200;
   return min + (max - v);
 }
 
@@ -16,9 +16,13 @@ export async function initEnergyBulbs(root) {
   root.innerHTML = `
     <div class="energy-controls">
       <button id="btnPlay">Play</button>
-      <input id="yearSlider" type="range" min="0" max="0" value="0" step="1" />
+
+      <label>Year
+        <div id="yearSlider"></div>
+      </label>
+
       <label>Speed
-        <input id="speed" type="range" min="50" max="1200" value="350" step="50" />
+        <div id="speedSlider"></div>
       </label>
     </div>
 
@@ -75,10 +79,25 @@ export async function initEnergyBulbs(root) {
 
   // ui stuff to setup animation
   const btnPlay = root.querySelector("#btnPlay");
-  const yearSlider = root.querySelector("#yearSlider");
-  const speed = root.querySelector("#speed");
+  const yearSliderEl = root.querySelector("#yearSlider");
+  const speedSliderEl = root.querySelector("#speedSlider");
 
-  yearSlider.max = String(data.length - 1);
+
+  // year slider
+  noUiSlider.create(yearSliderEl, {
+    start: [0],
+    step: 1,
+    connect: [true, false],
+    range: { min: 0, max: data.length - 1 }
+  });
+
+  // Speed slider
+  noUiSlider.create(speedSliderEl, {
+    start: [350],
+    step: 50,
+    connect: [true, false],
+    range: { min: 50, max: 1200 }
+  });
 
   // bulb layout 
   const bucketsNames = ["1–10", "11–20"];
@@ -279,11 +298,13 @@ export async function initEnergyBulbs(root) {
 
   // apply year
   let idx = 0;
-
+  let isProgrammatic = false;
+  
   function applyYearInstant(newIdx) {
     idx = Math.max(0, Math.min(data.length - 1, newIdx));
-    yearSlider.value = String(idx);
-
+    isProgrammatic = true;
+    yearSliderEl.noUiSlider.set(idx);
+    isProgrammatic = false;
     yearPrev.textContent = data[idx - 1]?.year ?? "";
     yearNow.textContent  = data[idx].year;
     yearNext.textContent = data[idx + 1]?.year ?? "";
@@ -320,7 +341,7 @@ export async function initEnergyBulbs(root) {
     // autoplay step
     if (playing) {
       const now = performance.now();
-      const interval = getSpeedIntervalMs(speed);
+      const interval = getSpeedIntervalMs(speedSliderEl);
 
       if (now - lastStep >= interval) {
         lastStep = now;
@@ -340,9 +361,10 @@ export async function initEnergyBulbs(root) {
     lastStep = performance.now();
   });
 
-  yearSlider.addEventListener("input", (e) => {
+  yearSliderEl.noUiSlider.on("slide", (values) => {
+    if (isProgrammatic) return;
     playing = false;
     btnPlay.textContent = "Play";
-    applyYearInstant(Number(e.target.value));
+    applyYearInstant(Math.round(Number(values[0])));
   });
 }
