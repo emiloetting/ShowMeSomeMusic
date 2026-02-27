@@ -1,4 +1,7 @@
-
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
 
 <body>
   <main class="view">
@@ -17,3 +20,15 @@
       |
       <a href="/views/loudness.html">Loudness</a>
     </nav>
+
+    <div id="VizStack">
+      <div id="continuity-Viz"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js"></script>
+    <script type="module">
+      import { initTrackContinuity } from "../src/track_conti.js";
+        initTrackContinuity("#continuity-Viz").catch(console.error);
+    </script>
+  </main>
+</body>
