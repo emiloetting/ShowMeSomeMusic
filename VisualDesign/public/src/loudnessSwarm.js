@@ -6,8 +6,10 @@ import { fetchSongsDbByYear, fetchLoudestAndQuietest } from "./api.js";
 export async function renderLoudnessSwarm(rootSelector, layout, year) {
   const { swarm, wave } = layout;
 
-  const data = await fetchSongsDbByYear(year);
-  data.forEach(d => { d.position = +d.position; d.mean_db = +d.mean_db; });
+  let data = await fetchSongsDbByYear(year);
+  data = data
+    .map(d => ({ ...d, position: +d.position, mean_db: Number(d.mean_db) }))
+    .filter(d => Number.isFinite(d.mean_db) && d.mean_db !== 0 && Number.isFinite(d.position));
 
   const root = d3.select(rootSelector);
   root.selectAll("*").remove();
@@ -73,13 +75,13 @@ export async function renderLoudnessSwarm(rootSelector, layout, year) {
 
   // dp settings
   const r = 5, padding = 1;
-  const swarmRadius = r + padding;
-  const swarmHeight = swarmRadius * Math.sqrt(data.length);
+  const paddingTop = 16;
+  const paddingBottom = 16;
 
-  const centerY = plotH - swarmHeight / 2;
+  const yMin = paddingTop;
+  const yMax = plotH - paddingBottom;
 
-  const yMin = centerY - swarmHeight / 2;
-  const yMax = centerY + swarmHeight / 2;
+  const centerY = (yMin + yMax) / 2;
 
   // Legend (gradient on swarm center line)
   const legendWidth = 105;
@@ -153,6 +155,11 @@ export async function renderLoudnessSwarm(rootSelector, layout, year) {
     .force("x", d3.forceX(d => x_axis(d.mean_db)).strength(1))
     .force("y", d3.forceY(centerY).strength(0.05))
     .force("collide", d3.forceCollide(r + padding))
+    .force("bounds", () => {
+      for (const d of data) {
+        d.y = Math.max(yMin, Math.min(yMax, d.y));
+      }
+    })
     .stop();
 
   // run sim
@@ -170,6 +177,6 @@ export async function renderLoudnessSwarm(rootSelector, layout, year) {
       .attr("fill", d => color(d.position))
     // on hover - field
     .append("title")
-      .text(d => `Name: "${d.name}" | Position: ${d.position} | Ø Loudness: ${d.mean_db.toFixed(2)} dB`);
+      .text(d => `${d.artists} - "${d.name}" | Position: ${d.position} | Ø Loudness: ${d.mean_db.toFixed(2)} dB`);
 
 }

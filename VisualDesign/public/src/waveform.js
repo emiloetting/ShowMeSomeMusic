@@ -30,11 +30,15 @@ export function renderWave({ g, layout, data, tooltipSel, onYearClick }) {
     .domain(data.map(dp => dp.year))
     .range([wave.innerWidth * 0.05, wave.innerWidth * 0.95]);
 
-  const db_vals = data.map(dp => dp.mean_db);
+  const cleanData = data
+    .map(dp => ({ ...dp, mean_db: Number(dp.mean_db) }))
+    .filter(dp => Number.isFinite(dp.mean_db));
+
+  const db_vals = cleanData.map(dp => dp.mean_db);
   const domain = [Math.min(...db_vals), Math.max(...db_vals)];
   const amplitude = d3.scaleLinear()
     .domain(domain)
-    .range([10, wave.innerHeight * 0.75]);
+    .range([10, wave.innerHeight * 0.85]);
 
   // Reference lines (Min / Q1 / Median / Q3 / Max)
   const sorted = [...db_vals].sort((a, b) => a - b);
@@ -83,7 +87,7 @@ export function renderWave({ g, layout, data, tooltipSel, onYearClick }) {
   });
 
   g.selectAll("line.db-line")
-    .data(data, dp => dp.year)
+    .data(cleanData, dp => dp.year)
     .join("line")
       .attr("class", "db-line")
       .attr("stroke-width", wave.innerWidth * 0.01)
