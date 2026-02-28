@@ -40,6 +40,7 @@ class DBHandler(ABC):
             self.logger.info(f"Connected to database at: {pth}")
             self.crs = self.con.cursor()
             self.logger.info("Connection to database fully established.")
+            self.crs.execute("PRAGMA foreign_keys = ON;")
             self.logger.info("")
             self.logger.info("")
 
@@ -121,10 +122,11 @@ class DataCoreHandle(DBHandler):
 
         chart_entries_qry = """
         CREATE TABLE IF NOT EXISTS chart_entries (
-        track_id REFERENCES tracks(track_id),
-        year INTEGER,
+        track_id TEXT NOT NULL REFERENCES tracks(track_id),
+        year INTEGER NOT NULL,
         position INTEGER NOT NULL,
-        PRIMARY KEY (track_id, year)
+        PRIMARY KEY (year, position),
+        UNIQUE (track_id, year)
         );
         """
 
@@ -200,6 +202,18 @@ class DataCoreHandle(DBHandler):
         return self.crs.fetchall()
     
 
+    def _position_taken(self, year: int, pos: int) -> str | None:
+        """Returns existing track_id if (year,pos) already occupied, else None."""
+        self.crs.execute("""
+            SELECT track_id
+            FROM chart_entries
+            WHERE year=? AND position=?
+            LIMIT 1;
+        """, (year, pos))
+        row = self.crs.fetchone()
+        return None if row is None else row[0]
+        
+
     def insert_song(self, spotify_res:dict, recco_res:dict, year:int, pos:int) -> None:
         """Fills DataCore.db with song information provided by Spotify-API and Recco_beats-API.
         
@@ -226,6 +240,18 @@ class DataCoreHandle(DBHandler):
         track_id = spotify_res["id"]
         track_name = spotify_res["name"]
         duration_ms = spotify_res["duration_ms"]
+
+        # Check availability
+        existing = self._position_taken(year=year, pos=pos)
+        if existing is not None:
+            if existing == track_id:
+                self.logger.info(f"Duplicate run detected (already have {year}-{pos} for this track). Skipping.")
+            else:
+                self.logger.critical(
+                    f"POSITION CONFLICT: {year}-{pos} already occupied by track_id={existing}. "
+                    f"New track_id={track_id} would create duplicate position -> SKIPPING."
+                )
+            return
 
         # Set to None as default in case recco_res is None
         acousticness = danceability = energy = instrumentalness = None
@@ -294,6 +320,7 @@ class DataCoreHandle(DBHandler):
             if (tracks_success and artist_success and chart_success and track_artist_success):
                 self.con.commit()
                 self.logger.info(f"Successfully Added: {year} - {pos}")
+    
 
 
         except Exception:
@@ -301,3 +328,47 @@ class DataCoreHandle(DBHandler):
             self.logger.exception(f"SKIPPED SONG: '{track_name}' by '{[spotify_res["artists"][i]["name"] for i in range(len(spotify_res["artists"]))]}'")
         
         self.logger.info("")
+
+    def create_monster_view(self) -> None:
+        """Creates final view with 1 entry per chart position."""
+        self.crs.execute("""DROP VIEW IF EXISTS main;""")
+        self.crs.execute("""
+            CREATE VIEW main AS
+            SELECT
+                ce.year,
+                ce.position,
+                ce.track_id,
+
+                t.track_name,
+                t.duration_ms,
+                t.acousticness,
+                t.danceability,
+                t.energy,
+                t.instrumentalness,
+                t.key,
+                t.mode,
+                t.liveness,
+                t.loudness,
+                t.speechiness,
+                t.tempo,
+                t.valence,
+
+                GROUP_CONCAT(a.artist_name, ', ') AS artists
+
+            FROM chart_entries ce
+            JOIN tracks t
+                ON t.track_id = ce.track_id
+
+            LEFT JOIN track_artists ta
+                ON ta.track_id = t.track_id
+
+            LEFT JOIN artists a
+                ON a.artist_id = ta.artist_id
+
+            GROUP BY
+                ce.year,
+                ce.position,
+                ce.track_id;             
+            """)
+        self.con.commit()
+

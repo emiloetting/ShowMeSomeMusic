@@ -204,7 +204,7 @@ class ReccoScraper():
         res = get(url=url, headers=self.headers)
 
         # Rate limiting
-        sleeping_for = 1
+        sleeping_for = .1
         while res.status_code == 429:
             time.sleep(sleeping_for)
             sleeping_for = min(sleeping_for * 2, 30)

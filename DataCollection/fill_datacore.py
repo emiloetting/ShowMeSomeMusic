@@ -3,6 +3,7 @@ import json
 from spotify_recco_fetcher import SpotifyScraper, ReccoScraper
 from db_handle import DataCoreHandle
 from log_setup import setup_logger
+from create_datacore import make_datacore
 
 
 
@@ -34,6 +35,9 @@ mode_mapping = {
 
 def main():
 
+    # Create DB file
+    make_datacore()
+    
     # Init logger, DB Handle, SpotifyAPI Handle
     logger = setup_logger()
 
@@ -68,6 +72,19 @@ def main():
                                  recco_res=recco_res, 
                                  year=int(year),
                                  pos=int(pos))
+            
+            # Quick sanity check: do we have exactly 100 positions for this year?
+        datacore.crs.execute("SELECT COUNT(*) FROM chart_entries WHERE year=?;", (int(year),))
+        cnt = datacore.crs.fetchone()[0]
+
+        datacore.crs.execute("SELECT position FROM chart_entries WHERE year=?;", (int(year),))
+        got = {r[0] for r in datacore.crs.fetchall()}
+        missing = [p for p in range(1, 101) if p not in got]
+
+        logger.info(f"YEAR SUMMARY {year}: {cnt}/100 entries. Missing positions: {missing[:20]}{' ...' if len(missing) > 20 else ''}")
+
+        datacore.create_monster_view()  # update mega-view once every chart-year
+
 
     
 if __name__ == "__main__":
