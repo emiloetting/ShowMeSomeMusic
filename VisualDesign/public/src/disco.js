@@ -438,13 +438,13 @@ export async function discoBall() {
     const position = latCount - latIndex;
 
     const m = meta?.[idx];
-    const song = m?.trackname ?? "n/a";
-    const artist = m?.artist ?? "n/a";
+    const song = m?.track_name ?? "n/a";
+    const artists = m?.artists ?? "n/a";
 
     if (isMissingAt(idx)) {
       setTooltip(
         `<strong>Track: ${song}</strong><br>
-         Artist: ${artist}<br>
+         Artist: ${artists}<br>
          Year: ${year}<br>
          Chart position: #${position}<br>
          Danceability: <em>Missing information</em>`,
@@ -457,7 +457,7 @@ export async function discoBall() {
 
     setTooltip(
       `<strong>Track: ${song}</strong><br>
-       Artist: ${artist}<br>
+       Artist: ${artists}<br>
        Year: ${year}<br>
        Chart position: #${position}<br>
        Danceability: ${fmt(values[idx])}`,
@@ -516,8 +516,8 @@ export async function discoBall() {
       const position = latCount - latIndex;
 
       const m = meta?.[idx];
-      const song = m?.trackname ?? "n/a";
-      const artist = m?.artist ?? "n/a";
+      const song = m?.track_name ?? "n/a";
+      const artists = m?.artists ?? "n/a";
 
       const d = isMissingAt(idx) ? null : values[idx];
 
@@ -534,7 +534,7 @@ export async function discoBall() {
 
         <div class="disco-panel-body">
           <div class="song-title">${song}</div>
-          <div class="artist">${artist}</div>
+          <div class="artist">${artists}</div>
 
           <div class="kv"><b>Year:</b> ${year}</div>
           <div class="kv"><b>Position:</b> #${position}</div>

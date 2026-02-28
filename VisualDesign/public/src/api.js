@@ -30,7 +30,7 @@ export async function prepareDiscoData() {
   const meta = new Array(lonCount * latCount).fill(null);
 
   for (const row of raw_data) {
-    const { trackname, artist, year, position, danceability } = row;
+    const { track_name, artists, year, position, danceability } = row;
 
     if (
       year < yearStart ||
@@ -43,7 +43,7 @@ export async function prepareDiscoData() {
     const yearIndex = year - yearStart;
     const latIndex = (latCount - position); // top position on top
     const idx = yearIndex + latIndex * lonCount;
-    meta[idx] = { trackname, artist };
+    meta[idx] = { track_name, artists };
     const hasDanceability =
       danceability !== null &&
       danceability !== undefined &&
@@ -123,8 +123,8 @@ export async function prepareSongContinuity() {
         track_id,
         year,
         position,
-        trackname: row.trackname ?? "",
-        artist: row.artist ?? ""
+        trackname: row.track_name ?? "",
+        artist: row.artists ?? ""
       });
     }
   }
