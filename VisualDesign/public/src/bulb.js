@@ -108,7 +108,7 @@ export async function initEnergyBulbs(root) {
   // center & spacing stuff
   const centerX = 450;
   const yearY = 400;    
-  const gap = 80;       // between year nrs
+  const gap = 100;       // between year nrs
 
   // group containing visible years
   const yearStrip = document.createElementNS("http://www.w3.org/2000/svg", "g");
