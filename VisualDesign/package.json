@@ -9,5 +9,13 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "dependencies": {
+    "better-sqlite3": "^12.5.0",
+    "d3": "^7.9.0",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
 }

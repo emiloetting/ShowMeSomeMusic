@@ -1,0 +1,189 @@
+.energy-controls{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  margin: 8px 0 12px;
+  fill: var(--accent);
+}
+
+/* center text n slider */
+.energy-controls label{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1;          
+  margin: 0;               /* kill borwser default margin */
+}
+
+.energy-controls input[type="range"]{
+  display: block;        
+}
+
+.energy-controls button{
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.energy-controls input[type="range"]{
+  accent-color: var(--accent);
+  cursor: pointer;
+  fill: white;
+}
+
+.energy-controls label{
+  color: var(--accent);
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.energy-controls button:hover{
+  background: var(--accent);
+  color: black;
+}
+
+.energy-svg{
+  width:100%;
+  height:auto;
+}
+
+.bulb-base{
+  fill:#2a2a2a;
+  opacity:1;
+}
+
+.bulb-glass{
+  fill: #ffd36a;
+  opacity:0.45;
+}
+
+.bulb-glow{
+  fill: #ffd36a;
+  opacity:0.25;
+}
+
+.bulb-label{
+  font-size: 15px;
+  fill: #ddd;
+  opacity: 0.9;
+}
+
+/* Drähte + Filament */
+.bulb-lead{
+  stroke: #e7e0c8;
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.35;
+}
+
+.bulb-filament{
+  stroke: #fff1b3;
+  stroke-width: 3;
+  stroke-linecap: round;
+  fill: none;
+  opacity: 0.35;
+}
+
+.bulb-filament-glow{
+  fill: #ffd36a;
+  opacity: 0.15;
+}
+
+/* ridges on bulb */
+.bulb-ridge{
+  stroke: rgba(255,255,255,0.25);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.bulb-screw{
+  opacity: 1;
+}
+
+.bulb-screw-ridge{
+  stroke: rgba(51, 51, 51, 0.562);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.energy-year{
+  font-size: 48px;
+  font-weight: 600;
+  fill: rgba(255,255,255,0.9);
+  letter-spacing: 4px;
+}
+
+
+.year-strip{
+  transition: transform 300ms ease;
+}
+
+.year-current{
+  font-size: 40px;
+  font-weight: 600;
+  fill: rgba(255,255,255,0.95);
+  letter-spacing: 4px;
+}
+
+.year-side{
+  font-size: 20px;
+  fill: rgba(255,255,255,0.75);
+  letter-spacing: 1px;
+}
+
+
+.year-fade{
+  animation: yearFade 220ms ease;
+}
+
+@keyframes yearFade{
+  from { opacity: 0.15; }
+  to   { opacity: 1; }
+}
+
+/* match noui sliders */
+.energy-controls .noUi-target{
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.08);
+  box-shadow: none;
+}
+
+.energy-controls .noUi-connect{
+  background: var(--accent);
+  opacity: 0.90;
+}
+
+.energy-controls .noUi-handle{
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: #0f0f10;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.35);
+  right: -7px;
+  top: -4px;
+  cursor: pointer;
+}
+
+.energy-controls .noUi-handle:before,
+.energy-controls .noUi-handle:after{
+  display:none;
+}
+
+/* give sliders a real width inside the energy controls */
+.energy-controls #yearSlider,
+.energy-controls #speedSlider{
+  width: 220px;       
+  min-width: 180px;
+}
+
+.energy-controls{
+  gap: 16px;
+  flex-wrap: wrap;
+}

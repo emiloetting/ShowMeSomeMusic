@@ -1,0 +1,61 @@
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+</script>
+</head>
+
+<body>
+  <main class="view">
+    <h1 id="ViewTitle">Show Me Some Music</h1>
+
+    <nav class="view-nav" aria-label="Visualisierungen">
+      <a href="/index.html">Start</a>
+      |
+      <a href="/views/loudness.html">Loudness</a>
+      | 
+      <a href="/views/disco.html">Danceability</a>
+      |
+      <a href="/views/bulb.html">Energy</a>
+      |
+      <a href="/views/track_journey.html">Track-Journey</a>
+      |
+      <a href="/views/about.html">About</a>
+    </nav>
+
+    <div id="VizStack">
+      <div id="energyViz" class="viz energy-viz"></div>
+    </div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div>
+      <h1 id = "View-metric">Energy</h1>
+      <p class="view-about">
+        Shown above is the development of the average energy of chart-listed songs in a specific positional interval.  <br>
+        Intervals contain chart positions 1-10 & 11-20. 
+        This visualization displays the course of average energy within the top 20% positions of the Billboard Hot 100 Year-End Charts.
+        The more mean energy is found within the chart-positional interval represented, the brighter a light bulb will shine. 
+        Since it is an animated visual, the energy level's development across time becomes apparant when starting the animation by clicking the button underneath page navigation.
+        Next to the start/pause button are 2 sliders, the left one indicating the current year (also depicted beneath the animated light bulbs), while the right controls the animation's speed.
+        Once finished, the animation will start again until it is paused using the button pressed before. 
+      </p>
+    </div>
+
+
+    <div id="energyViz" class="viz energy-viz"></div>
+    <script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js"></script>
+    <script type="module">
+    import { initEnergyBulbs } from "../src/bulb.js";
+    initEnergyBulbs(document.querySelector("#energyViz"));
+    </script>
+  </main>
+</body>

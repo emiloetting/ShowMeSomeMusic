@@ -1,0 +1,30 @@
+/* Legend */
+.legend-title{
+  fill: rgba(255,255,255,0.75);
+  font-size: 18px;
+  font-weight: 400;
+  pointer-events: none;
+}
+
+.legend-desc{
+  fill: rgba(255,255,255,0.75);
+}
+
+/* Axis label */
+.axis-label{
+  fill: rgba(255,255,255,0.75);
+  font-size: 16px;
+  font-weight: 400;
+  pointer-events: none;
+}
+
+/* DB-Swarm X-Axis*/
+#Loudness_Swarm .x-axis .tick text{
+  fill: rgba(255,255,255,0.75);
+  font-size: 12px;
+}
+
+#Loudness_Swarm .x-axis .domain,
+#Loudness_Swarm .x-axis .tick line{
+  stroke: rgba(255,255,255,0.25);
+}

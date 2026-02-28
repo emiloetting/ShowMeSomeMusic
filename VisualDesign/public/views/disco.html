@@ -1,0 +1,72 @@
+<head>
+  <link rel="stylesheet" href="../css/styles.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+</script>
+</head>
+
+<body>
+  <main class="view">
+    <h1 id="ViewTitle">Show Me Some Music</h1>
+
+    <nav class="view-nav" aria-label="Visualisierungen">
+      <a href="/index.html">Start</a>
+      |
+      <a href="/views/loudness.html">Loudness</a>
+      | 
+      <a href="/views/disco.html">Danceability</a>
+      |
+      <a href="/views/bulb.html">Energy</a>
+      |
+      <a href="/views/track_journey.html">Track-Journey</a>
+      |
+      <a href="/views/about.html">About</a>
+    </nav>
+
+    <div id="VizStack">
+      <div id="discoRoot"></div>
+    </div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div>
+      <h1 id = "View-metric">Danceability</h1>
+      <p class="view-about">
+        Depicted above is the danceability of chart entries from each year. 
+        Longitude represents a specific year, while altitude encodes chart position.
+        Therefore, each tile provides information on a specific song within the Billboard Hot 100 Year-End Charts between 1959 and 2024. 
+        <br>
+        Danceability is measured in values ranging from 0 to 1 and indicated by the brightness of the respective tile.
+        The brighter the field, the more danceable its corresponding song.
+        In some cases, data might be missing. 
+        The respective fields are then colored green.
+        <br>
+        Hover over a field enables a tooltip displaying basic information about the corresponding song it represents.
+        By clicking the ball, its rotation will stop and it can be positioned and inspected to preference.
+        Right click on a field opens up a field showing additional statistical information regarding the respective song's danceability compared to others.
+        A click next to the ball will enable the rotation once again.
+        <br>
+        <br>
+        <span class="view-about-highlight-word">Bias Information</span>: 
+        <br>
+        Since not all tiles are of similar size, keep in mind that tile size does not contain or encode any extra information. 
+        Hence, if a specific area seems bright but small of size, remember that many songs might be encoded within that area of the ball.
+        This effect occurs toward the top and bottom (fields closer to the ball's axis of rotation)!
+      </p>
+    </div>
+
+    <div class="tooltip" style="opacity:0;"></div>
+
+    <script type="module">
+      import { discoBall } from "../src/disco.js";
+      discoBall().catch(console.error);
+    </script>
+  </main>
+</body>

@@ -1,0 +1,49 @@
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+  <main class="view">
+    <h1 id="ViewTitle">Show Me Some Music</h1>
+
+    <nav class="view-nav" aria-label="Visualisierungen">
+      <a href="/index.html">Start</a>
+      |
+      <a href="/views/loudness.html">Loudness</a>
+      | 
+      <a href="/views/disco.html">Danceability</a>
+      |
+      <a href="/views/bulb.html">Energy</a>
+      |
+      <a href="/views/track_journey.html">Track-Journey</a>
+      |
+      <a href="/views/about.html">About</a>
+    </nav>
+
+    <div id="VizStack">
+      <div id="continuity-Viz"></div>
+    </div>
+
+
+    <div>
+      <h1 id = "View-metric">Chart Appearance</h1>
+      <p class="view-about">
+        This visual contains information about the duration of songs within the charts.
+        Each year is represented by a vertical line consisting of ideally 100 points, each representing the song at the chart position according to its vertical index (chart-toppers at the top).
+        If a song is chart-listed in two consecutive years, a line indicates its positional development. 
+        Additionally, the in the following year's bar, the respective dot is color red if the position decreased, green if it increased and grey in case it remained the same.
+        In order to allow for a closer look, 2 intervals can be set, one each for year and chart position.
+        Hovering over a data point opens up a tooltip displaying basic information on the corresponding song.
+        Clicking on a point opens up a more detailed tooltip version.
+      </p>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js"></script>
+    <script type="module">
+      import { initTrackContinuity } from "../src/track_conti.js";
+        initTrackContinuity("#continuity-Viz").catch(console.error);
+    </script>
+  </main>
+</body>
