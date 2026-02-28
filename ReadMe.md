@@ -39,8 +39,9 @@ git clone https://github.com/emiloetting/ShowMeSomeMusic
 ```
 
 3️⃣ **Navigating to the VisualDesign directory:**  
-In order to get the web interface up and running, check out the VisualDesign subdirectory
+In order to get the web interface up and running, check out the VisualDesign subdirectory after entering the repository directory
 ```shell
+cd ShowMeSomeMusic\
 cd VisualDesign
 ```
 
