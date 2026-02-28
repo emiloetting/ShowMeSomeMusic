@@ -33,10 +33,15 @@ mode_mapping = {
     1: "Major"
 }
 
-def main():
+def main(fill_missing_singular: bool=True):
+    """Main function to create (if not already existant) DataCore.db, gathers and fills in data."""
 
     # Create DB file
-    make_datacore()
+    if not os.path.exists(
+        os.path.join(
+            os.getcwd(), "DataStorage", "DataCore.db")
+    ):
+        make_datacore()
     
     # Init logger, DB Handle, SpotifyAPI Handle
     logger = setup_logger()
@@ -48,6 +53,12 @@ def main():
                             logger=logger,
                             key_mapping=key_mapping,
                             mode_mapping=mode_mapping)
+    
+    found_year = datacore.crs.execute("""SELECT MAX(year) FROM chart_entries;""").fetchone()[0]
+    logged_year = int(found_year) if found_year is not None else 1959
+    current_index = datacore.crs.execute("SELECT MAX(position) FROM chart_entries WHERE year=?;",(logged_year,)).fetchone()[0]
+    current_index = int(current_index) if current_index is not None else 0
+
 
     # Load JSON with chart info
     with open("DataStorage/top_100_songs.json", "r") as f:
@@ -55,12 +66,27 @@ def main():
 
 
     # Actual Search
-    for year in charts.keys():
-        for pos in charts[year].keys():
+    for year_s in sorted(charts.keys()):
+
+        if not fill_missing_singular:
+            if int(year) < logged_year:
+                continue
+
+        for pos_s in sorted(charts[year_s].keys()):
+
+            pos = int(pos_s)
+            year = int(year_s)
+
+            if not fill_missing_singular:
+                if year == logged_year and pos <= current_index:
+                    continue
+
+            if datacore.slot_exists(year, pos):
+                continue  # if entry already found
 
             # Spotify
-            spotify_res = spotify_scraper.search(song_name=charts[year][pos]["title"],
-                                                artist_s=charts[year][pos]["artists"])
+            spotify_res = spotify_scraper.search(song_name=charts[year_s][pos_s]["title"],
+                                                artist_s=charts[year_s][pos_s]["artists"])
             
             if spotify_res is None:
                 logger.warning("COULD NOT FIND SONG ON SPOTIFY")

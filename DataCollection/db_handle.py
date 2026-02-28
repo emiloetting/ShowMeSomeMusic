@@ -173,7 +173,7 @@ class DataCoreHandle(DBHandler):
             # Prepare query
             params = ",".join(["?"]*len(table_cols))
             query = f"""
-            INSERT INTO {table} 
+            INSERT OR IGNORE INTO {table} 
             VALUES ({params});
             """
             
@@ -257,24 +257,24 @@ class DataCoreHandle(DBHandler):
         acousticness = danceability = energy = instrumentalness = None
         key = mode = liveness = loudness = speechiness = tempo = valence = None
 
+        href = recco_res.get("href") if recco_res else None
+        if href and str(href).split("/")[-1] == track_id:     # only extact info if spotify IDs align
 
-        if (recco_res is not None) and (str(recco_res["href"]).split(sep="/")[-1] == track_id):     # only extact info if spotify IDs align
-
-            acousticness = recco_res["acousticness"]
-            danceability = recco_res["danceability"]
-            energy = recco_res["energy"]
-            instrumentalness = recco_res["instrumentalness"]
-            key = self.key_mapping[recco_res["key"]]
+            acousticness = recco_res.get("acousticness", None)
+            danceability = recco_res.get("danceability", None)
+            energy = recco_res.get("energy", None)
+            instrumentalness = recco_res.get("instrumentalness", None)
+            key = self.key_mapping.get(recco_res.get("key"), None)
             if not ("mode" in dict(recco_res).keys()):
                 mode = None     # sqlite handles as NULL automatically
             else:
-                mode = self.mode_mapping[recco_res["mode"]]
+                mode = self.mode_mapping.get(recco_res.get("mode"), None)
             
-            liveness = recco_res["liveness"]
-            loudness = recco_res["loudness"]
-            speechiness = recco_res["speechiness"]
-            tempo = recco_res["tempo"]
-            valence = recco_res["valence"]        
+            liveness = recco_res.get("liveness", None)
+            loudness = recco_res.get("loudness", None)
+            speechiness = recco_res.get("speechiness", None)
+            tempo = recco_res.get("tempo", None)
+            valence = recco_res.get("valence", None)        
 
         try:
             pass
@@ -371,4 +371,11 @@ class DataCoreHandle(DBHandler):
                 ce.track_id;             
             """)
         self.con.commit()
+
+    def slot_exists(self, year: int, position: int) -> bool:
+        row = self.crs.execute(
+            "SELECT 1 FROM chart_entries WHERE year=? AND position=? LIMIT 1;",
+            (year, position)
+        ).fetchone()
+        return row is not None
 
